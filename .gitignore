@@ -4,3 +4,6 @@ attendance/*
 EmpDetails/*
 TrainingImage/*
 *.yml
+test.py
+face.py
+takemanually.py
