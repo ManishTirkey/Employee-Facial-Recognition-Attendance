@@ -7,17 +7,21 @@ import pandas as pd
 import pyttsx3 
 from PIL import ImageTk, Image
 import static as path
+import os
 ##### file importing
 import automaticAttedance
 import show_attendance
 import takeImage
 import trainImage
+from Clean_Files import Make_atten_file_clean
 
 haarcasecade_path = path.HAARCASECASE_PATH
 trainimagelabel_path = path.TRAINIMAGELABEL_PATH
 trainimage_path = path.TRAINIMAGE_PATH
 studentdetail_path = path.STUDENTDETAIL_PATH
 attendance_path = path.ATTENDANCE_PATH
+
+emp_details_path = os.path.join(os.getcwd(), path.STUDENTDETAIL_PATH)
 
 
 def text_to_speech(user_text):
@@ -58,7 +62,7 @@ def err_screen():
 
 def TakeImageUI():
     ImageUI = Toplevel()
-    ImageUI.title("Take Student Image..")
+    ImageUI.title("Take Employee Image..")
     ImageUI.geometry("680x380")
     ImageUI.iconbitmap(r"UI_Image/face.ico")
     ImageUI.lift(root)
@@ -93,10 +97,14 @@ def TakeImageUI():
     lbl1.config(bg=bg)
     lbl1.grid(row=0, column=0, sticky=W, padx=(100, 30), pady=(10, 0))
 
-    txt1 = Entry(info_frame, validate="key", font=info_font, bd=0, width=25)
-    txt1.focus()
-    txt1["validatecommand"] = (txt1.register(testVal), "%P", "%d")
+
+    all_emp = len(pd.read_csv(emp_details_path))+1
+    txt1 = Label(info_frame, text=f"Your Enrollment no. is: {all_emp}", font=info_font, bd=0, width=25, anchor=W)
+    # txt1 = Entry(info_frame, validate="key", font=info_font, bd=0, width=25)
+    # txt1.focus()
+    # txt1["validatecommand"] = (txt1.register(testVal), "%P", "%d")
     txt1.grid(row=0, column=1, sticky=W, ipady=4)
+    txt1.config(bg="#ffffff")
 
     # name
     lbl2 = Label(info_frame, text="Name", font=info_font)
@@ -142,7 +150,7 @@ def TakeImageUI():
     #         return False
 
     def take_image():
-        l1 = txt1.get()
+        l1 = str(all_emp)
         l2 = txt2.get()
         l2 = l2.upper()
         depart = c_box.get()
@@ -151,7 +159,7 @@ def TakeImageUI():
         data = data[data["Enrollment"] == int(l1)]
         length = len(data)
 
-        if (len(l1) == 0 or l1 == "") or (l2 == "" and len(l2) == 0):
+        if (l1 == "") and (l2 == "" and len(l2) == 0):
             m = "please enter your Details First"
             message.config(text=m)
             text_to_speech(m)
@@ -173,7 +181,7 @@ def TakeImageUI():
         else:
             takeImage.TakeImage(ImageUI, l1, l2, depart, haarcasecade_path,
                                 trainimage_path, message, text_to_speech)
-            txt1.delete(0, END)
+            txt1.config(text="")
             txt2.delete(0, END)
 
     takeImg = Button(btn_frame, text="Take Image", width=15, command=take_image, font=("Tahoma", 12, "bold"))
@@ -182,6 +190,7 @@ def TakeImageUI():
     def train_image():
         trainImage.TrainImage(ImageUI, haarcasecade_path, trainimage_path,
                               trainimagelabel_path, message, text_to_speech, )
+        Make_atten_file_clean(studentdetail_path)
 
     # train Image function call
 
@@ -289,9 +298,7 @@ def Lv(btn):
     btn.config(bg="#fff", fg="#000000")
 
 
-# exitBtn = Button(exit_frame, text="Exit", command=lambda: Destroy(root), height=2, width=10, font=("terminal", 12))
-# exitBtn.pack(side=RIGHT)
-# root.protocol("WM_DELETE_WINDOW", lambda: Destroy(root))
+root.protocol("WM_DELETE_WINDOW", lambda: Destroy(root))
 regBtn.bind("<Enter>", lambda event: Enter(regBtn))
 regBtn.bind("<Leave>", lambda event: Lv(regBtn))
 takeAtten.bind("<Enter>", lambda event: Enter(takeAtten))

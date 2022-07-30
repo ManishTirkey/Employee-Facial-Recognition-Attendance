@@ -6,6 +6,7 @@ import datetime
 import time
 from threading import Thread
 import static as static_path
+from Clean_Files import Make_atten_file_clean
 
 haarcasecade_path = static_path.HAARCASECASE_PATH
 trainimagelabel_path = static_path.TRAINIMAGELABEL_PATH
@@ -60,9 +61,9 @@ def Make_Attendance(attendance, filename, text_to_speech):
         except:
             pass
         finally:
+            Make_atten_file_clean(FILE_PATH)
             text_to_speech(MSG)
 
-    # for choose subject and fill attendance
 
 
 def AllEmployeeDetection(text_to_speech):
