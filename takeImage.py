@@ -7,6 +7,7 @@ import pandas as pd
 import datetime
 import time
 import static as static_path
+from Clean_Files import Make_atten_file_clean
 
 global MSG
 MSG = ""
@@ -57,13 +58,13 @@ def TakeImage__(l1, l2, depart, haarcasecade_path, trainimage_path):
         path = os.path.join(trainimage_path, directory)
         os.mkdir(path)
 
-        face_thread = Thread(target=Detect_Face, daemon=True, args=(cam, detector, path, Name, Enrollment, 0))
+        face_thread = Thread(target = Detect_Face, daemon = True, args = (cam, detector, path, Name, Enrollment, 0))
         face_thread.start()
         face_thread.join()
 
         row = [Enrollment, Name, depart]
         with open(static_path.STUDENTDETAIL_PATH, "a") as csvFile:
-            writer = csv.writer(csvFile, delimiter=",")
+            writer = csv.writer(csvFile, delimiter = ",")
             writer.writerow(row)
             csvFile.close()
         MSG = "Images Saved of " + Name
@@ -71,19 +72,21 @@ def TakeImage__(l1, l2, depart, haarcasecade_path, trainimage_path):
         MSG = "Data already exists of " + Name
     except Exception as e:
         print(f"error is : {e}")
+    finally:
+        Make_atten_file_clean(static_path.STUDENTDETAIL_PATH)
 
 
 def check_thread(thread, msg, speech, root):
     if thread.is_alive():
-        msg.config(text="Image Taking")
+        msg.config(text = "Image Taking")
         root.after(1, lambda: check_thread(thread, msg, speech, root))
     else:
-        msg.configure(text=MSG)
+        msg.configure(text = MSG)
         speech(MSG)
 
 
 def TakeImage(root, l1, l2, depart, haarcasecade_path, trainimage_path, message, text_to_speech):
-    th = Thread(target=TakeImage__, daemon=True,
-                args=(l1, l2, depart, haarcasecade_path, trainimage_path))
+    th = Thread(target = TakeImage__, daemon = True,
+                args = (l1, l2, depart, haarcasecade_path, trainimage_path))
     th.start()
     root.after(1, lambda: check_thread(th, message, text_to_speech, root))
